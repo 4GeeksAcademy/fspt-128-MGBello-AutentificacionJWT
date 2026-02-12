@@ -1,5 +1,5 @@
 from flask_sqlalchemy import SQLAlchemy
-from sqlalchemy import String, Boolean
+from sqlalchemy import String, select
 from sqlalchemy.orm import Mapped, mapped_column
 from flask_bcrypt import generate_password_hash, check_password_hash
 
