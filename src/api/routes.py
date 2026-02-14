@@ -13,16 +13,26 @@ api = Blueprint('api', __name__)
 CORS(api)
 
 
+@api.route('/hello', methods=['POST', 'GET'])
+def handle_hello():
+
+    response_body = {
+        "message": "Hello! I'm a message that came from the backend, check the network tab on the google inspector and you will see the GET request"
+    }
+
+    return jsonify(response_body), 200
+
+
 @api.route('/register', methods=['POST'])
 def register():
     data = request.get_json()
     if not data.get('email') or not data.get('password'):
-        return jsonify({"Error": "Invalid data"}), 422
+        return jsonify({"error": "Invalid data"}), 422
 
     user_exist = db.session.execute(select(User).where(
         User.email == data.get("email"))).scalar_one_or_none()
     if user_exist:
-        return jsonify({"Error": "Already exist"}), 409
+        return jsonify({"error": "Already exist"}), 409
 
     new_user = User(
         email=data.get("email")
@@ -38,15 +48,15 @@ def register():
 def login():
     data = request.get_json()
     if not data.get('email') or not data.get("password"):
-        return jsonify({"Error": "All fields are required"}), 409
+        return jsonify({"error": "All fields are required"}), 409
 
     user = db.session.execute(select(User).where(
         User.email == data.get('email'))).scalar_one_or_none()
     if not user:
-        return jsonify({"Error": "Email or password not found"}), 404
+        return jsonify({"error": "Email or password not found"}), 404
     if user.check_hash(data.get("password")):
         access_token = create_access_token(identity=str(user.id))
         return jsonify({"msg": "Login successfully", "token": access_token}), 201
 
     else:
-        return jsonify({"Error": "Email or password not found"}), 404
+        return jsonify({"error": "Email or password not found"}), 404
